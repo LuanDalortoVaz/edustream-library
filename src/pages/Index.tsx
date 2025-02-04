@@ -1,4 +1,4 @@
-```typescript
+
 import Navigation from "../components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Play, BookOpen, Newspaper, GamepadIcon, Code, Wind, MousePointer } from "lucide-react";
@@ -180,4 +180,3 @@ const Index = () => {
 };
 
 export default Index;
-```
