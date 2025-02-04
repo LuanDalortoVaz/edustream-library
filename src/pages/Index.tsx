@@ -1,6 +1,7 @@
+```typescript
 import Navigation from "../components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
-import { Play, BookOpen, Newspaper, GamepadIcon, Code, Wind, MousePointer, Camera } from "lucide-react";
+import { Play, BookOpen, Newspaper, GamepadIcon, Code, Wind, MousePointer, Camera, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -36,6 +37,12 @@ const Index = () => {
     { name: "Wonder Dynamics", url: "https://wonderdynamics.com/", icon: <Camera className="w-5 h-5" /> },
     { name: "Mixamo", url: "https://www.mixamo.com/#/", icon: <Camera className="w-5 h-5" /> },
     { name: "Reallusion", url: "https://www.reallusion.com/character-creator/", icon: <Camera className="w-5 h-5" /> },
+  ];
+
+  const aiVideoTools = [
+    { name: "Luma Labs", url: "https://lumalabs.ai/", icon: <Video className="w-5 h-5" /> },
+    { name: "RunwayML", url: "https://runwayml.com/", icon: <Video className="w-5 h-5" /> },
+    { name: "Sora by OpenAI", url: "https://openai.com/sora", icon: <Video className="w-5 h-5" /> },
   ];
 
   return (
@@ -129,6 +136,31 @@ const Index = () => {
         <section>
           <h2 className="text-2xl font-bold mb-6">Web Educational Creative Tools</h2>
           
+          {/* AI Video Generator Subsection */}
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold mb-4">AI Video Generator</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {aiVideoTools.map((tool) => (
+                <a 
+                  key={tool.name}
+                  href={tool.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                >
+                  <Card className="bg-gray-800 border-none hover:scale-105 transition-transform duration-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-2">
+                        {tool.icon}
+                        <span className="text-white font-semibold">{tool.name}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </a>
+              ))}
+            </div>
+          </div>
+
           {/* 3D Animation Tools Subsection */}
           <div className="mb-6">
             <h3 className="text-xl font-semibold mb-4">3D Animation Tools</h3>
@@ -210,3 +242,4 @@ const Index = () => {
 };
 
 export default Index;
+```
