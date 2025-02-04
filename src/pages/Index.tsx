@@ -1,6 +1,7 @@
+```typescript
 import Navigation from "../components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
-import { Play, BookOpen, Newspaper } from "lucide-react";
+import { Play, BookOpen, Newspaper, GamepadIcon, Code, Wind, MousePointer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -18,6 +19,18 @@ const Index = () => {
     { name: "BBC News", url: "https://www.bbc.com/", icon: <Newspaper className="w-5 h-5" /> },
     { name: "National Geographic", url: "https://www.nationalgeographic.com/", icon: <Newspaper className="w-5 h-5" /> },
     { name: "Sebrae", url: "https://sebrae.com.br/sites/PortalSebrae/", icon: <Newspaper className="w-5 h-5" /> }
+  ];
+
+  const gameCreatingTools = [
+    { name: "GDevelop", url: "https://gdevelop.io/pt-br", icon: <GamepadIcon className="w-5 h-5" /> },
+    { name: "Rosebud AI", url: "https://www.rosebud.ai/ai-game-creator", icon: <GamepadIcon className="w-5 h-5" /> },
+  ];
+
+  const lowCodeTools = [
+    { name: "Lovable", url: "https://lovable.dev", icon: <Code className="w-5 h-5" /> },
+    { name: "Bolt", url: "https://bolt.new", icon: <Code className="w-5 h-5" /> },
+    { name: "Windsurf", url: "https://windsurf.io", icon: <Wind className="w-5 h-5" /> },
+    { name: "Cursor", url: "https://cursor.sh", icon: <MousePointer className="w-5 h-5" /> },
   ];
 
   return (
@@ -106,9 +119,65 @@ const Index = () => {
             ))}
           </div>
         </section>
+
+        {/* Web Educational Creative Tools Section */}
+        <section>
+          <h2 className="text-2xl font-bold mb-6">Web Educational Creative Tools</h2>
+          
+          {/* Game Creating Tools Subsection */}
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold mb-4">Free Game Creating Tools</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {gameCreatingTools.map((tool) => (
+                <a 
+                  key={tool.name}
+                  href={tool.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                >
+                  <Card className="bg-gray-800 border-none hover:scale-105 transition-transform duration-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-2">
+                        {tool.icon}
+                        <span className="text-white font-semibold">{tool.name}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Low-Code Tools Subsection */}
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Low-Code Programming Tools</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {lowCodeTools.map((tool) => (
+                <a 
+                  key={tool.name}
+                  href={tool.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                >
+                  <Card className="bg-gray-800 border-none hover:scale-105 transition-transform duration-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-2">
+                        {tool.icon}
+                        <span className="text-white font-semibold">{tool.name}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );
 };
 
 export default Index;
+```
