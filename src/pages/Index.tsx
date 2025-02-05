@@ -94,7 +94,7 @@ const Index = () => {
                 size="lg"
                 variant="secondary"
                 className="bg-gray-500/75 hover:bg-gray-500/50"
-                onClick={() => window.open("https://z-lib.is", "_blank")}
+                onClick={() => window.open("https://z-library.sk/", "_blank")}
               >
                 <BookOpen className="mr-2 h-5 w-5" /> Library
               </Button>
