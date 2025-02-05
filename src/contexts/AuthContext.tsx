@@ -10,18 +10,25 @@ interface AuthContextType {
   signOut: () => Promise<void>;
 }
 
-if (!import.meta.env.VITE_SUPABASE_URL) {
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl) {
   throw new Error('Missing environment variable: VITE_SUPABASE_URL');
 }
 
-if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
+if (!supabaseAnonKey) {
   throw new Error('Missing environment variable: VITE_SUPABASE_ANON_KEY');
 }
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
+// Validate URL format
+try {
+  new URL(supabaseUrl);
+} catch (error) {
+  throw new Error('Invalid SUPABASE_URL format. Must be a valid URL.');
+}
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
