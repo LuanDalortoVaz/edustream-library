@@ -1,9 +1,18 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, Book, Video, Newspaper } from "lucide-react";
+import { Menu, X, Book, Video, Newspaper, User } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   const navItems = [
     { name: "Videos", icon: <Video className="w-5 h-5" />, path: "/videos" },
@@ -22,7 +31,7 @@ const Navigation = () => {
           </div>
           
           <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-4">
+            <div className="ml-10 flex items-center space-x-4">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
@@ -33,6 +42,31 @@ const Navigation = () => {
                   <span>{item.name}</span>
                 </Link>
               ))}
+              
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                      <User className="h-5 w-5 text-white" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem className="text-sm">
+                      {user.email}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => signOut()}>
+                      Sign out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Link
+                  to="/auth"
+                  className="text-white hover:bg-secondary px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Sign In
+                </Link>
+              )}
             </div>
           </div>
           
@@ -62,6 +96,15 @@ const Navigation = () => {
                 <span>{item.name}</span>
               </Link>
             ))}
+            {!user && (
+              <Link
+                to="/auth"
+                className="text-white hover:bg-secondary block px-3 py-2 rounded-md text-base font-medium"
+                onClick={() => setIsOpen(false)}
+              >
+                Sign In
+              </Link>
+            )}
           </div>
         </div>
       )}
