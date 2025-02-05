@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
+import { createClient, SupabaseClient, User, Provider } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
@@ -9,9 +9,10 @@ interface AuthContextType {
   signOut: () => Promise<void>;
 }
 
+// Make sure to use the environment variables
 const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
+  import.meta.env.VITE_SUPABASE_URL || '',
+  import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 );
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithMicrosoft = async () => {
     await supabase.auth.signInWithOAuth({
-      provider: 'microsoft',
+      provider: 'azure' as Provider,
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
