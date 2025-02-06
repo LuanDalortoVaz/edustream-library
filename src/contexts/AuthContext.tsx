@@ -1,31 +1,20 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { createClient, SupabaseClient, User, Provider } from '@supabase/supabase-js';
+import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { useToast } from "@/components/ui/use-toast";
 
 interface AuthContextType {
   user: User | null;
   supabase: SupabaseClient;
-  signInWithGoogle: () => Promise<void>;
-  signInWithMicrosoft: () => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl) {
-  throw new Error('Missing environment variable: VITE_SUPABASE_URL');
-}
-
-if (!supabaseAnonKey) {
-  throw new Error('Missing environment variable: VITE_SUPABASE_ANON_KEY');
-}
-
-// Validate URL format
-try {
-  new URL(supabaseUrl);
-} catch (error) {
-  throw new Error('Invalid SUPABASE_URL format. Must be a valid URL.');
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing environment variables');
 }
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -37,7 +26,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check active sessions and subscribe to auth changes
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
     });
@@ -51,38 +39,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
+  const signIn = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
 
     if (error) {
-      console.error('Google auth error:', error);
+      console.error('Sign in error:', error);
       toast({
         title: "Authentication Error",
-        description: "Failed to sign in with Google. Please try again.",
+        description: error.message,
         variant: "destructive",
       });
+      throw error;
     }
   };
 
-  const signInWithMicrosoft = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'azure' as Provider,
+  const signUp = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
     if (error) {
-      console.error('Microsoft auth error:', error);
+      console.error('Sign up error:', error);
       toast({
-        title: "Authentication Error",
-        description: "Failed to sign in with Microsoft. Please try again.",
+        title: "Registration Error",
+        description: error.message,
         variant: "destructive",
+      });
+      throw error;
+    } else {
+      toast({
+        title: "Registration Successful",
+        description: "Please check your email to verify your account.",
       });
     }
   };
@@ -104,8 +98,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         supabase,
-        signInWithGoogle,
-        signInWithMicrosoft,
+        signIn,
+        signUp,
         signOut,
       }}
     >
