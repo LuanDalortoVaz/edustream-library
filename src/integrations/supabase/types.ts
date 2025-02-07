@@ -74,13 +74,18 @@ export type Database = {
       }
       videos: {
         Row: {
+          author: string | null
           category: string | null
+          content_quality_verified: boolean | null
           created_at: string
           description: string | null
+          difficulty_level: string | null
           duration: number | null
+          educational_category: string | null
           id: string
           is_featured: boolean | null
           license: string
+          source_url: string | null
           status: string | null
           tags: string[] | null
           thumbnail_url: string | null
@@ -91,13 +96,18 @@ export type Database = {
           views: number | null
         }
         Insert: {
+          author?: string | null
           category?: string | null
+          content_quality_verified?: boolean | null
           created_at?: string
           description?: string | null
+          difficulty_level?: string | null
           duration?: number | null
+          educational_category?: string | null
           id?: string
           is_featured?: boolean | null
           license?: string
+          source_url?: string | null
           status?: string | null
           tags?: string[] | null
           thumbnail_url?: string | null
@@ -108,13 +118,18 @@ export type Database = {
           views?: number | null
         }
         Update: {
+          author?: string | null
           category?: string | null
+          content_quality_verified?: boolean | null
           created_at?: string
           description?: string | null
+          difficulty_level?: string | null
           duration?: number | null
+          educational_category?: string | null
           id?: string
           is_featured?: boolean | null
           license?: string
+          source_url?: string | null
           status?: string | null
           tags?: string[] | null
           thumbnail_url?: string | null
