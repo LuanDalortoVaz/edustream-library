@@ -13,6 +13,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/callback" element={<Auth />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />

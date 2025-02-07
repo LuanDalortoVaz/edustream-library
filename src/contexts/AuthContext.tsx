@@ -27,6 +27,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Check for email verification error in URL
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const error = hashParams.get('error_description');
+    const errorCode = hashParams.get('error');
+    
+    // Only show error toast if it's not an email verification error
+    if (error && errorCode !== 'unauthorized_client') {
+      toast({
+        title: "Authentication Error",
+        description: error,
+        variant: "destructive",
+      });
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
     });
@@ -38,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [toast]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
