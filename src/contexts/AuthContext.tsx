@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState } from 'react';
 import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { useToast } from "@/components/ui/use-toast";
