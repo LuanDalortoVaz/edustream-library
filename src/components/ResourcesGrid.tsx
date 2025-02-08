@@ -1,3 +1,4 @@
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Newspaper, GamepadIcon, Code, Wind, MousePointer, Camera, Video } from "lucide-react";
 
