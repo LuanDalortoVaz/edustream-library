@@ -22,6 +22,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// Define the allowed role types to match the Supabase enum
+type UserRole = 'student' | 'teacher' | 'admin' | 'parent' | 'guest';
+
 const Auth = () => {
   const { user, signIn, signUp, signOut } = useAuth();
   const { toast } = useToast();
@@ -30,7 +33,7 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<string>("");
+  const [role, setRole] = useState<UserRole | "">("");
 
   useEffect(() => {
     if (user) {
@@ -44,21 +47,35 @@ const Auth = () => {
 
     try {
       if (isSignUp) {
-        await signUp(email, password);
-        if (role) {
+        const { data: authData, error: signUpError } = await signUp(email, password);
+        
+        if (signUpError) throw signUpError;
+
+        if (authData?.user && role) {
           const { error: roleError } = await supabase
             .from('user_roles')
-            .insert([
-              { user_id: user?.id, role }
-            ]);
+            .insert({
+              user_id: authData.user.id,
+              role: role as UserRole
+            });
 
           if (roleError) throw roleError;
         }
       } else {
         await signIn(email, password);
       }
+
+      toast({
+        title: isSignUp ? "Account created successfully" : "Signed in successfully",
+        description: isSignUp ? "Please check your email to verify your account" : "Welcome back!",
+      });
     } catch (error) {
       console.error('Auth error:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -125,7 +142,7 @@ const Auth = () => {
             {isSignUp && (
               <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
-                <Select value={role} onValueChange={setRole}>
+                <Select value={role} onValueChange={(value: UserRole) => setRole(value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
