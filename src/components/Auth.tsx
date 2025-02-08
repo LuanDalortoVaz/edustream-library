@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Card,
   CardContent,
@@ -13,6 +14,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Auth = () => {
   const { user, signIn, signUp, signOut } = useAuth();
@@ -22,8 +30,8 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState<string>("");
 
-  // Redirect if user is already logged in
   useEffect(() => {
     if (user) {
       navigate('/');
@@ -37,6 +45,15 @@ const Auth = () => {
     try {
       if (isSignUp) {
         await signUp(email, password);
+        if (role) {
+          const { error: roleError } = await supabase
+            .from('user_roles')
+            .insert([
+              { user_id: user?.id, role }
+            ]);
+
+          if (roleError) throw roleError;
+        }
       } else {
         await signIn(email, password);
       }
@@ -76,7 +93,7 @@ const Auth = () => {
           <CardTitle>{isSignUp ? "Create Account" : "Sign In"}</CardTitle>
           <CardDescription>
             {isSignUp 
-              ? "Enter your email and password to create an account" 
+              ? "Enter your details to create an account" 
               : "Enter your credentials to sign in"}
           </CardDescription>
         </CardHeader>
@@ -105,10 +122,26 @@ const Auth = () => {
                 minLength={6}
               />
             </div>
+            {isSignUp && (
+              <div className="space-y-2">
+                <Label htmlFor="role">Role</Label>
+                <Select value={role} onValueChange={setRole}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="student">Student</SelectItem>
+                    <SelectItem value="teacher">Teacher</SelectItem>
+                    <SelectItem value="parent">Parent</SelectItem>
+                    <SelectItem value="guest">Guest</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <Button
               type="submit"
               className="w-full"
-              disabled={isLoading}
+              disabled={isLoading || (isSignUp && !role)}
             >
               {isLoading ? "Loading..." : (isSignUp ? "Create Account" : "Sign In")}
             </Button>
