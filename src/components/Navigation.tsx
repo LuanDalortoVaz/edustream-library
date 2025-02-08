@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, Book, Video, Newspaper, User } from "lucide-react";
@@ -54,6 +55,9 @@ const Navigation = () => {
                     <DropdownMenuItem className="text-sm">
                       {user.email}
                     </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/dashboard">Dashboard</Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => signOut()}>
                       Sign out
                     </DropdownMenuItem>
@@ -96,7 +100,26 @@ const Navigation = () => {
                 <span>{item.name}</span>
               </Link>
             ))}
-            {!user && (
+            {user ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="text-white hover:bg-secondary block px-3 py-2 rounded-md text-base font-medium"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={() => {
+                    signOut();
+                    setIsOpen(false);
+                  }}
+                  className="text-white hover:bg-secondary block w-full text-left px-3 py-2 rounded-md text-base font-medium"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
               <Link
                 to="/auth"
                 className="text-white hover:bg-secondary block px-3 py-2 rounded-md text-base font-medium"
