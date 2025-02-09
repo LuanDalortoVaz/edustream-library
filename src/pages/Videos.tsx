@@ -1,13 +1,19 @@
 
 import { useState } from "react";
 import Navigation from "../components/Navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, ExternalLink } from "lucide-react";
+import { Loader2, ExternalLink, Trash2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
 
 const Videos = () => {
   const [isHovered, setIsHovered] = useState<string | null>(null);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: videos, isLoading } = useQuery({
     queryKey: ["videos"],
@@ -21,6 +27,44 @@ const Videos = () => {
       return data;
     },
   });
+
+  const handleDelete = async (videoId: string, videoUrl: string) => {
+    try {
+      // Extract filename from URL
+      const filename = videoUrl.split('/').pop();
+      if (!filename) throw new Error("Invalid video URL");
+
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from('videos')
+        .remove([filename]);
+
+      if (storageError) throw storageError;
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from('videos')
+        .delete()
+        .eq('id', videoId);
+
+      if (dbError) throw dbError;
+
+      // Refresh videos list
+      queryClient.invalidateQueries({ queryKey: ["videos"] });
+
+      toast({
+        title: "Success",
+        description: "Video deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting video:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete video. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -82,7 +126,7 @@ const Videos = () => {
                   </div>
                 </div>
                 {isHovered === video.id && (
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-4">
                     <a 
                       href={video.video_url} 
                       target="_blank" 
@@ -91,6 +135,16 @@ const Videos = () => {
                     >
                       Watch <ExternalLink className="w-4 h-4" />
                     </a>
+                    {user && user.id === video.user_id && (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="rounded-full"
+                        onClick={() => handleDelete(video.id, video.video_url)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -103,3 +157,4 @@ const Videos = () => {
 };
 
 export default Videos;
+
