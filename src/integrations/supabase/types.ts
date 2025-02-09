@@ -191,6 +191,10 @@ export type Database = {
           category: string | null
           content_quality_verified: boolean | null
           created_at: string
+          data_collection_consent: boolean | null
+          data_sensitivity_level: string | null
+          data_storage_duration: unknown | null
+          data_usage_purpose: string[] | null
           description: string | null
           difficulty_level: string | null
           duration: number | null
@@ -213,6 +217,10 @@ export type Database = {
           category?: string | null
           content_quality_verified?: boolean | null
           created_at?: string
+          data_collection_consent?: boolean | null
+          data_sensitivity_level?: string | null
+          data_storage_duration?: unknown | null
+          data_usage_purpose?: string[] | null
           description?: string | null
           difficulty_level?: string | null
           duration?: number | null
@@ -235,6 +243,10 @@ export type Database = {
           category?: string | null
           content_quality_verified?: boolean | null
           created_at?: string
+          data_collection_consent?: boolean | null
+          data_sensitivity_level?: string | null
+          data_storage_duration?: unknown | null
+          data_usage_purpose?: string[] | null
           description?: string | null
           difficulty_level?: string | null
           duration?: number | null
