@@ -1,3 +1,4 @@
+
 import Navigation from "../components/Navigation";
 import HeroSection from "../components/HeroSection";
 import UploadSection from "../components/UploadSection";
@@ -18,6 +19,7 @@ const Index = () => {
       const { data, error } = await supabase
         .from("videos")
         .select("*")
+        .eq('status', 'approved')
         .order("created_at", { ascending: false })
         .limit(4);
       
@@ -27,9 +29,9 @@ const Index = () => {
   });
 
   const featuredContent = {
-    title: "Machine Learning Fundamentals",
-    description: "Master the fundamentals of machine learning through our comprehensive course. Learn essential algorithms, data processing techniques, and practical applications from industry experts.",
-    image: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?q=80&w=2070"
+    title: "Discover, Learn, and Share Knowledge",
+    description: "Join our community of learners and educators. Access high-quality educational content, share your expertise, and engage with a global community passionate about learning.",
+    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158"
   };
 
   const newsResources = [
@@ -64,7 +66,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <Navigation />
       <HeroSection featuredContent={featuredContent} />
       <UploadSection />
@@ -74,7 +76,7 @@ const Index = () => {
         <section className="space-y-8">
           <div className="flex justify-between items-center">
             <h2 className="text-4xl font-bold text-gradient">
-              Popular Courses
+              Featured Videos
             </h2>
             <Link 
               to="/videos" 
@@ -84,14 +86,14 @@ const Index = () => {
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {isLoading ? (
               [...Array(4)].map((_, i) => (
-                <Card key={i} className="bg-gray-800/50 border-none animate-pulse">
+                <Card key={i} className="bg-secondary/50 border-none animate-pulse">
                   <CardContent className="p-4">
-                    <div className="aspect-video bg-gray-700/50 rounded-xl mb-4" />
-                    <div className="h-4 bg-gray-700/50 rounded animate-pulse mb-2" />
-                    <div className="h-3 bg-gray-700/50 rounded animate-pulse w-2/3" />
+                    <div className="aspect-video bg-secondary/50 rounded-xl mb-4" />
+                    <div className="h-4 bg-secondary/50 rounded animate-pulse mb-2" />
+                    <div className="h-3 bg-secondary/50 rounded animate-pulse w-2/3" />
                   </CardContent>
                 </Card>
               ))
@@ -105,12 +107,16 @@ const Index = () => {
                 >
                   <CardContent className="p-4 relative">
                     <div className="aspect-video rounded-xl overflow-hidden mb-4">
-                      {video.thumbnail_url && (
+                      {video.thumbnail_url ? (
                         <img
                           src={video.thumbnail_url}
                           alt={video.title}
                           className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-110"
                         />
+                      ) : (
+                        <div className="w-full h-full bg-secondary/50 flex items-center justify-center">
+                          <Video className="w-8 h-8 text-secondary-foreground/50" />
+                        </div>
                       )}
                     </div>
                     <h3 className="text-lg font-semibold text-white/90 mb-2 line-clamp-1">
@@ -120,27 +126,29 @@ const Index = () => {
                       {video.description}
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {video.educational_category && (
-                        <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs">
-                          {video.educational_category}
+                      {video.category && (
+                        <span className="px-2 py-1 bg-primary/20 text-primary-foreground rounded-full text-xs">
+                          {video.category}
                         </span>
                       )}
                       {video.difficulty_level && (
-                        <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded-full text-xs">
+                        <span className="px-2 py-1 bg-secondary/20 text-secondary-foreground rounded-full text-xs">
                           {video.difficulty_level}
                         </span>
                       )}
                     </div>
                     {isHovered === video.id && (
-                      <div className="absolute inset-0 rounded-xl bg-black/60 backdrop-blur-sm flex items-center justify-center animate-fade-in">
-                        <Link 
-                          to={`/videos/${video.id}`}
-                          className="flex items-center gap-2 bg-white text-black px-6 py-2 rounded-full hover:bg-gray-200 transition-colors group"
-                        >
+                      <a 
+                        href={video.video_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="absolute inset-0 rounded-xl bg-black/60 backdrop-blur-sm flex items-center justify-center animate-fade-in"
+                      >
+                        <div className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-2 rounded-full hover:bg-primary/90 transition-colors group cursor-pointer">
                           <Play className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                           <span>Watch Now</span>
-                        </Link>
-                      </div>
+                        </div>
+                      </a>
                     )}
                   </CardContent>
                 </Card>

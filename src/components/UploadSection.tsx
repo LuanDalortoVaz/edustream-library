@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Upload, Plus, Loader2 } from "lucide-react";
+import { Upload, Plus, Loader2, ImagePlus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { moderateContent } from "@/utils/contentModeration";
 import {
@@ -30,13 +30,14 @@ const UploadSection = () => {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
+  const [selectedThumbnail, setSelectedThumbnail] = useState<File | null>(null);
+  const [selectedArticleImage, setSelectedArticleImage] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 500 * 1024 * 1024) { // 500MB limit
+      if (file.size > 500 * 1024 * 1024) {
         toast({
           title: "File too large",
           description: "Please select a video file smaller than 500MB",
@@ -45,6 +46,36 @@ const UploadSection = () => {
         return;
       }
       setSelectedVideo(file);
+    }
+  };
+
+  const handleThumbnailSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select an image file for the thumbnail",
+          variant: "destructive",
+        });
+        return;
+      }
+      setSelectedThumbnail(file);
+    }
+  };
+
+  const handleArticleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select an image file",
+          variant: "destructive",
+        });
+        return;
+      }
+      setSelectedArticleImage(file);
     }
   };
 
@@ -75,27 +106,48 @@ const UploadSection = () => {
 
     setIsUploading(true);
     try {
-      const formData = new FormData();
-      formData.append('video', selectedVideo);
-      formData.append('title', title);
-      formData.append('description', description);
-      formData.append('category', category);
+      // Upload video
+      const videoPath = `${crypto.randomUUID()}.${selectedVideo.name.split('.').pop()}`;
+      const { error: videoError } = await supabase.storage
+        .from('videos')
+        .upload(videoPath, selectedVideo);
 
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-video`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session?.access_token}`,
-        },
-        body: formData,
-      });
+      if (videoError) throw videoError;
 
-      const result = await response.json();
+      // Get video URL
+      const { data: { publicUrl: videoUrl } } = supabase.storage
+        .from('videos')
+        .getPublicUrl(videoPath);
 
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to upload video');
+      let thumbnailUrl = null;
+      if (selectedThumbnail) {
+        const thumbnailPath = `${crypto.randomUUID()}.${selectedThumbnail.name.split('.').pop()}`;
+        const { error: thumbnailError } = await supabase.storage
+          .from('thumbnails')
+          .upload(thumbnailPath, selectedThumbnail);
+
+        if (thumbnailError) throw thumbnailError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('thumbnails')
+          .getPublicUrl(thumbnailPath);
+        
+        thumbnailUrl = publicUrl;
       }
+
+      const { error: dbError } = await supabase
+        .from('videos')
+        .insert({
+          title,
+          description,
+          category,
+          video_url: videoUrl,
+          thumbnail_url: thumbnailUrl,
+          user_id: user.id,
+          status: 'pending'
+        });
+
+      if (dbError) throw dbError;
 
       toast({
         title: "Upload Successful",
@@ -108,7 +160,7 @@ const UploadSection = () => {
       setDescription("");
       setCategory("");
       setSelectedVideo(null);
-      setUploadProgress(0);
+      setSelectedThumbnail(null);
     } catch (error) {
       console.error('Error uploading video:', error);
       toast({
@@ -148,7 +200,33 @@ const UploadSection = () => {
 
     setIsUploading(true);
     try {
-      console.log('Creating article:', { title, description });
+      let coverImageUrl = null;
+      if (selectedArticleImage) {
+        const imagePath = `${crypto.randomUUID()}.${selectedArticleImage.name.split('.').pop()}`;
+        const { error: imageError } = await supabase.storage
+          .from('articles')
+          .upload(imagePath, selectedArticleImage);
+
+        if (imageError) throw imageError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('articles')
+          .getPublicUrl(imagePath);
+        
+        coverImageUrl = publicUrl;
+      }
+
+      const { error: dbError } = await supabase
+        .from('articles')
+        .insert({
+          title,
+          content: description,
+          cover_image: coverImageUrl,
+          user_id: user.id,
+          status: 'pending'
+        });
+
+      if (dbError) throw dbError;
       
       toast({
         title: "Article Created",
@@ -158,6 +236,7 @@ const UploadSection = () => {
       
       setTitle("");
       setDescription("");
+      setSelectedArticleImage(null);
     } catch (error) {
       console.error('Error creating article:', error);
       toast({
@@ -171,8 +250,9 @@ const UploadSection = () => {
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex space-x-4 mb-8">
+    <div className="px-4 sm:px-6 lg:px-8 py-8 glass-morphism mx-4 sm:mx-6 lg:mx-8 my-8">
+      <h2 className="text-2xl font-bold mb-6 text-gradient">Share Your Knowledge</h2>
+      <div className="flex flex-wrap gap-4 mb-8">
         <Dialog>
           <DialogTrigger asChild>
             <Button
@@ -240,14 +320,21 @@ const UploadSection = () => {
                 )}
               </div>
 
-              {uploadProgress > 0 && uploadProgress < 100 && (
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div
-                    className="bg-primary h-2.5 rounded-full"
-                    style={{ width: `${uploadProgress}%` }}
-                  ></div>
-                </div>
-              )}
+              <div className="space-y-2">
+                <Label htmlFor="thumbnail">Thumbnail Image (Optional)</Label>
+                <Input
+                  id="thumbnail"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleThumbnailSelect}
+                  className="cursor-pointer"
+                />
+                {selectedThumbnail && (
+                  <p className="text-sm text-gray-500">
+                    Selected: {selectedThumbnail.name}
+                  </p>
+                )}
+              </div>
 
               <Button 
                 onClick={handleVideoUpload}
@@ -287,17 +374,40 @@ const UploadSection = () => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
+              <div className="space-y-2">
+                <Label htmlFor="articleImage">Cover Image (Optional)</Label>
+                <Input
+                  id="articleImage"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleArticleImageSelect}
+                  className="cursor-pointer"
+                />
+                {selectedArticleImage && (
+                  <p className="text-sm text-gray-500">
+                    Selected: {selectedArticleImage.name}
+                  </p>
+                )}
+              </div>
               <Textarea
                 placeholder="Article Content"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                className="min-h-[200px]"
               />
               <Button 
                 onClick={handleArticleUpload}
                 disabled={isUploading || !title || !description}
                 className="w-full"
               >
-                {isUploading ? "Creating..." : "Create"}
+                {isUploading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  "Create Article"
+                )}
               </Button>
             </div>
           </DialogContent>
