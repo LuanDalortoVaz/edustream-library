@@ -1,4 +1,3 @@
-
 import Navigation from "../components/Navigation";
 import HeroSection from "../components/HeroSection";
 import UploadSection from "../components/UploadSection";
@@ -65,31 +64,32 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#141414] text-white">
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
       <Navigation />
       <HeroSection featuredContent={featuredContent} />
       <UploadSection />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-20">
         {/* Videos Section */}
-        <section>
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+        <section className="space-y-8">
+          <div className="flex justify-between items-center">
+            <h2 className="text-4xl font-bold text-gradient">
               Popular Courses
             </h2>
             <Link 
               to="/videos" 
-              className="text-primary hover:text-primary/80 flex items-center group"
+              className="text-white/80 hover:text-white flex items-center group transition-all"
             >
               View All <Play className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {isLoading ? (
               [...Array(4)].map((_, i) => (
-                <Card key={i} className="bg-gray-800/50 border-none">
+                <Card key={i} className="bg-gray-800/50 border-none animate-pulse">
                   <CardContent className="p-4">
-                    <div className="aspect-video bg-gray-700/50 rounded-md animate-pulse mb-2" />
+                    <div className="aspect-video bg-gray-700/50 rounded-xl mb-4" />
                     <div className="h-4 bg-gray-700/50 rounded animate-pulse mb-2" />
                     <div className="h-3 bg-gray-700/50 rounded animate-pulse w-2/3" />
                   </CardContent>
@@ -99,28 +99,47 @@ const Index = () => {
               videos?.map((video) => (
                 <Card 
                   key={video.id}
-                  className="bg-gray-800/50 backdrop-blur border border-white/10 hover:border-white/20 transform transition-all duration-300 hover:scale-105 hover:z-10"
+                  className="glass-morphism group transform transition-all duration-300 hover:scale-105"
                   onMouseEnter={() => setIsHovered(video.id)}
                   onMouseLeave={() => setIsHovered(null)}
                 >
-                  <CardContent className="p-4 relative overflow-hidden">
-                    <div className="aspect-video bg-gray-700/50 rounded-md mb-3 overflow-hidden">
+                  <CardContent className="p-4 relative">
+                    <div className="aspect-video rounded-xl overflow-hidden mb-4">
                       {video.thumbnail_url && (
                         <img
                           src={video.thumbnail_url}
                           alt={video.title}
-                          className="w-full h-full object-cover rounded-md transform transition-transform duration-300 group-hover:scale-110"
+                          className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-110"
                         />
                       )}
                     </div>
-                    <h3 className="text-lg font-semibold text-white/90 mb-2">{video.title}</h3>
-                    <p className="text-sm text-gray-400 line-clamp-2">{video.description}</p>
+                    <h3 className="text-lg font-semibold text-white/90 mb-2 line-clamp-1">
+                      {video.title}
+                    </h3>
+                    <p className="text-sm text-gray-400 line-clamp-2 mb-3">
+                      {video.description}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {video.educational_category && (
+                        <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs">
+                          {video.educational_category}
+                        </span>
+                      )}
+                      {video.difficulty_level && (
+                        <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded-full text-xs">
+                          {video.difficulty_level}
+                        </span>
+                      )}
+                    </div>
                     {isHovered === video.id && (
-                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm transition-all duration-300">
-                        <button className="bg-white text-black px-6 py-2 rounded-full hover:bg-gray-200 transition-colors flex items-center space-x-2">
-                          <Play className="w-4 h-4" />
-                          <span>Play Now</span>
-                        </button>
+                      <div className="absolute inset-0 rounded-xl bg-black/60 backdrop-blur-sm flex items-center justify-center animate-fade-in">
+                        <Link 
+                          to={`/videos/${video.id}`}
+                          className="flex items-center gap-2 bg-white text-black px-6 py-2 rounded-full hover:bg-gray-200 transition-colors group"
+                        >
+                          <Play className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                          <span>Watch Now</span>
+                        </Link>
                       </div>
                     )}
                   </CardContent>
@@ -130,12 +149,12 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Resources Sections */}
+        {/* Resources Section */}
         <section className="space-y-12">
-          <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+          <h2 className="text-4xl font-bold text-gradient">
             Educational Resources
           </h2>
-          <div className="space-y-12">
+          <div className="space-y-16">
             <ResourcesGrid title="News Resources" resources={newsResources} />
             <ResourcesGrid title="Game Creating Tools" resources={gameCreatingTools} />
             <ResourcesGrid title="Low-Code Tools" resources={lowCodeTools} />
