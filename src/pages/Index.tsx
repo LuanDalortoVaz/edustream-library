@@ -1,4 +1,3 @@
-
 import Navigation from "../components/Navigation";
 import HeroSection from "../components/HeroSection";
 import UploadSection from "../components/UploadSection";
@@ -38,7 +37,10 @@ const Index = () => {
     { name: "Forbes", url: "https://www.forbes.com/", icon: <Newspaper className="w-5 h-5" /> },
     { name: "BBC News", url: "https://www.bbc.com/", icon: <Newspaper className="w-5 h-5" /> },
     { name: "National Geographic", url: "https://www.nationalgeographic.com/", icon: <Newspaper className="w-5 h-5" /> },
-    { name: "Sebrae", url: "https://sebrae.com.br/sites/PortalSebrae/", icon: <Newspaper className="w-5 h-5" /> }
+    { name: "Sebrae", url: "https://sebrae.com.br/sites/PortalSebrae/", icon: <Newspaper className="w-5 h-5" /> },
+    { name: "Futura", url: "https://futura.frm.org.br/", icon: <Newspaper className="w-5 h-5" /> },
+    { name: "Louvre Collections", url: "https://collections.louvre.fr/", icon: <Newspaper className="w-5 h-5" /> },
+    { name: "Exame", url: "https://exame.com/", icon: <Newspaper className="w-5 h-5" /> }
   ];
 
   const gameCreatingTools = [
